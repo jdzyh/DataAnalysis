@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<osm version="0.6" generator="Overpass API 0.7.54.12 054bb0bb">
+<note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
+<meta osm_base="2017-12-09T13:35:02Z"/>
+
+<bounds minlat="30.8291000" minlon="120.9883000" maxlat="31.3551000" maxlon="121.9730000"/>
+
+<way id="87487654" version="6" timestamp="2016-12-06T18:52:02Z" changeset="44216860" uid="3450290" user="ff5722">
+    <nd ref="1165244111"/>
+    <nd ref="1811092613"/>
+    <nd ref="2843298747"/>
+    <nd ref="1812179960"/>
+    <nd ref="1165244115"/>
+    <tag k="highway" v="secondary"/>
+    <tag k="name" v="观海路"/>
+    <tag k="name:en" v="Guanhai Road"/>
+    <tag k="oneway" v="yes"/>
+    <tag k="source" v="Bing"/>
+</way>
+<way id="183758090" version="3" timestamp="2017-10-09T10:33:47Z" changeset="52755139" uid="4816761" user="Austin Zhu">
+    <nd ref="1941638419"/>
+    <nd ref="1941638423"/>
+    <tag k="bridge" v="yes"/>
+    <tag k="cycleway:right" v="lane"/>
+    <tag k="highway" v="primary"/>
+    <tag k="int_name" v="Xiangjiang Gonglu"/>
+    <tag k="layer" v="1"/>
+    <tag k="name" v="翔江公路"/>
+    <tag k="name:en" v="Xiangjiang Hwy."/>
+    <tag k="oneway" v="yes"/>
+</way>
+<node id="1684521211" lat="30.9615607" lon="121.7251682" version="1" timestamp="2012-03-21T11:04:59Z" changeset="11050932" uid="596114" user="z_i_g_o">
+    <tag k="barrier" v="toll_booth"/>
+</node>
+<node id="1684521214" lat="30.9618091" lon="121.7249429" version="1" timestamp="2012-03-21T11:04:59Z" changeset="11050932" uid="596114" user="z_i_g_o"/>
+<relation id="7791944" version="1" timestamp="2017-12-08T06:10:56Z" changeset="54450160" uid="4816761" user="Austin Zhu">
+    <member type="node" ref="5265140286" role="admin_centre"/>
+    <member type="way" ref="545400869" role="outer"/>
+    <member type="way" ref="545392121" role="outer"/>
+    <member type="way" ref="545392122" role="outer"/>
+    <member type="way" ref="545172835" role="outer"/>
+    <member type="way" ref="504045393" role="outer"/>
+    <member type="way" ref="504045253" role="outer"/>
+    <tag k="admin_level" v="8"/>
+    <tag k="boundary" v="administrative"/>
+    <tag k="name" v="玉山镇"/>
+    <tag k="type" v="boundary"/>
+  </relation>
+<relation id="6840940" version="3" timestamp="2017-08-07T15:54:48Z" changeset="50921545" uid="3836466" user="Koalberry">
+    <member type="relation" ref="6840915" role=""/>
+    <member type="relation" ref="214736" role=""/>
+    <tag k="colour" v="#D7006C"/>
+    <tag k="name" v="上海轨道交通6号线"/>
+    <tag k="name:en" v="Shanghai Metro Line 6"/>
+    <tag k="name:zh" v="上海轨道交通6号线"/>
+    <tag k="network" v="上海地铁"/>
+    <tag k="operator" v="上海地铁第四运营有限公司"/>
+    <tag k="public_transport:version" v="2"/>
+    <tag k="ref" v="6"/>
+    <tag k="route_master" v="subway"/>
+    <tag k="type" v="route_master"/>
+    <tag k="wikidata" v="Q631135"/>
+    <tag k="wikipedia" v="en:Line 6, Shanghai Metro"/>
+  </relation>
+
+</osm>

@@ -1,0 +1,14 @@
+id,key,value,type
+87487654,highway,secondary,regular
+87487654,name,观海路,regular
+87487654,en,Guanhai Road,name
+87487654,oneway,yes,regular
+87487654,source,Bing,regular
+183758090,bridge,yes,regular
+183758090,right,lane,cycleway
+183758090,highway,primary,regular
+183758090,int_name,Xiangjiang Gonglu,regular
+183758090,layer,1,regular
+183758090,name,翔江公路,regular
+183758090,en,Xiangjiang Hwy.,name
+183758090,oneway,yes,regular

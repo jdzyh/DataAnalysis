@@ -1,0 +1,17 @@
+CSV文件处理：
+http://blog.csdn.net/ko_tin/article/details/72627266
+http://blog.csdn.net/huitailang1991/article/details/54946528
+
+正则匹配：
+https://docs.python.org/2/library/re.html
+
+Cerberus库：
+http://docs.python-cerberus.org/en/stable/
+
+数据库相关问题：
+http://blog.csdn.net/u013063153/article/details/53304261
+http://blog.csdn.net/gvfdbdf/article/details/49455381
+http://bbs.csdn.net/topics/390661358
+https://stackoverflow.com/questions/6621530/1264-out-of-range-value-fix
+http://www.oschina.net/question/1165991_2200405
+http://blog.csdn.net/a14206149/article/details/35991455

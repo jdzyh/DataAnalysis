@@ -1,0 +1,209 @@
+---
+output: html_document
+---
+# 红酒质量分析
+研究目的：探寻哪个化学成分影响红葡萄酒的质量
+
+# 数据结构概览
+```{r}
+library(knitr)
+library(ggplot2)
+library(GGally)
+library(scales)
+library(memisc)
+library(gridExtra)
+library(grid)
+library(RColorBrewer)
+
+wine_red = read.csv('wineQualityReds.csv')
+```
+
+```{r}
+str(wine_red)
+```
+```{r}
+summary(wine_red)
+```
+数据集包含1599个样本。每个样本都有1个id参数，12个特征参数。
+```{r}
+table(wine_red$quality)
+```
+
+# 单变量绘图
+
+```{r}
+ggplot(data=wine_red, aes(x=quality))+
+  geom_histogram(binwidth = 0.5)+
+  ggtitle('View of quality-count')
+```
+由图可知红酒的质量参数quality大部分评分为中等分数（5分，6分），好与差的分布都很少。
+```{r}
+ggplot(data=wine_red, aes(x=fixed.acidity))+
+  geom_histogram(binwidth = 0.2)+
+  scale_x_continuous(breaks=seq(4,16,2))+
+  ggtitle('View of fixed.acidity-count')
+```
+上图是非挥发性酸的浓度分布，绝大部分的红酒都位于6-12 g/dm^3，有很少部分的浓度是大于14g/dm^3的。
+
+```{r}
+ggplot(data=wine_red, aes(x=volatile.acidity))+
+  geom_histogram(binwidth = 0.02)+
+  scale_x_continuous(breaks=seq(0,1.6,0.2))+
+  ggtitle('View of volatile.acidity-count')
+```
+上图是挥发酸的浓度分布，绝大部分的红酒都位于0.2-1.0 g/dm^3。
+
+
+```{r}
+ggplot(data=wine_red, aes(x=citric.acid))+
+  geom_histogram(binwidth = 0.01)+
+  scale_x_continuous(breaks=seq(0,1,0.1))+
+  ggtitle('View of citric acid-count')
+```
+上图是柠檬酸的浓度分布，可以看到某些浓度的分布数量特别多，比如在0附近、0.25附近以及0.48附近的浓度值都具有很多的数量。其中取值是0的情况最多，表示很多红酒不含有柠檬酸。
+
+```{r}
+ggplot(data=wine_red, aes(x=residual.sugar))+
+  geom_histogram(binwidth = 0.2)+
+  scale_x_continuous(breaks=seq(0,16,2))+
+  ggtitle('View of residual.sugar-count')
+```
+上图是残糖的浓度分布，可见大部分红酒的浓度聚集在0-6g/dm^3之间，且是长尾数据，考虑对浓度取对数重新作图：
+```{r}
+ggplot(data=wine_red, aes(x=residual.sugar))+
+  geom_histogram(binwidth = 0.02)+
+  scale_x_log10(breaks=seq(0,16,2))+
+  ggtitle('View of log10(residual.sugar)-count')
+```
+```{r}
+ggplot(data=wine_red, aes(x=chlorides))+
+  geom_histogram(binwidth = 0.002)+
+  scale_x_continuous(breaks=seq(0.01,0.62,0.1))+
+  ggtitle('View of chlorides-count')
+```
+上图是氯化物的浓度分布，可见浓度范围主要集中在0.01-0.11g/dm^3之间；在浓度0.21-0.61g/dm^3的范围内红酒数量较少，且分布离散。
+
+```{r}
+ggplot(data=wine_red, aes(x=free.sulfur.dioxide))+
+  geom_histogram(binwidth = 1)+
+  scale_x_continuous(breaks=seq(0,100,10))+
+  ggtitle('View of free.sulfur.dioxide-count')
+```
+上图是游离二氧化硫浓度分布，可见红酒的二氧化硫浓度分布一般在3-40mg/dm^3，浓度是6mg/dm^3的数量是最多的。
+
+```{r}
+ggplot(data=wine_red, aes(x=total.sulfur.dioxide))+
+  geom_histogram(binwidth = 1)+
+  scale_x_continuous(breaks=seq(0,300,50))+
+  ggtitle('View of total.sulfur.dioxide-count')
+```
+上图是总的二氧化硫量弄浓度分布，主要集中在10-150mg/dm^3。
+
+```{r}
+ggplot(data=wine_red, aes(x=density))+
+  geom_histogram(binwidth = 0.0001)+
+  scale_x_continuous(breaks=seq(0.98,1.1,0.002))+
+  ggtitle('View of density-count')
+```
+上图是密度分布图，其分布范围主要在0.993-1.001g/cm^3。
+
+```{r}
+ggplot(data=wine_red, aes(x=pH))+
+  geom_histogram(binwidth = 0.01)+
+  scale_x_continuous(breaks=seq(2.7,4.1,0.1))+
+  ggtitle('View of pH-count')
+```
+上图为酸度分布，可见红葡萄酒都是酸性，主要分布在Ph3.0-3.6的范围内。
+```{r}
+ggplot(data=wine_red, aes(x=sulphates))+
+  geom_histogram(binwidth = 0.01)+
+  scale_x_continuous(breaks=seq(0.2,2.1,0.1))+
+  ggtitle('View of sulphates-count')
+```
+
+```{r}
+ggplot(data=wine_red, aes(x=alcohol))+
+  geom_histogram(binwidth = 0.1)+
+  scale_x_continuous(breaks=seq(8,15,0.5))+
+  ggtitle('View of alcohol-count')
+```
+
+# 单变量分析
+## 你的数据结构是什么？
+    红酒数据集包含1599个样本。除去一个x变量（id）, 12个特征参数为：fixed.acidity, volatile.acidity, citric.acid, residual.sugar, chlorides, free.sulfur.dioxide, total.sulfur.dioxide, density, pH, sulphates, alcohol, quality.
+    其中，quality为离散的整数类型，取值范围为[3, 8]，其他特征参数皆为浮点数。
+    
+    
+## 你的数据集内感兴趣的主要特性有哪些？
+## 你认为数据集内哪些其他特征可以帮助你探索兴趣特点？
+## 根据数据集内已有变量，你是否创建了任何新变量？
+## 在已经探究的特性中，是否存在任何异常分布？你是否对数据进行一些操作，如清洁、调整或改变数据的形式？如果是，你为什么会这样做？
+
+# 双变量绘图
+```{r}
+theme_set(theme_minimal(10))
+
+set.seed(1836)
+wine_red_sub <- wine_red[, c(2:13)]
+names(wine_red_sub)
+
+ggpairs(wine_red_sub[sample.int(nrow(wine_red_sub), 1000), ],
+        lower=list(continuous=wrap("points", alpha = 0.3, cex=0.1)),
+         diag=list(continuous=wrap("barDiag")),
+        upper=list(continuous=wrap("cor", size=2, color='black'))
+        )
+```
+
+```{r}
+ggplot(data=wine_red_sub, aes(y=citric.acid, x=quality))+
+  geom_point(alpha=0.1)
+```
+
+```{r}
+ggplot(data=wine_red_sub, aes(y=volatile.acidity, x=quality))+
+  geom_point(alpha=0.1)
+```
+
+```{r}
+ggplot(data=wine_red_sub, aes(y=wine_red_sub$total.sulfur.dioxide, x=quality))+
+  geom_point(alpha=0.1)
+```
+
+```{r}
+ggplot(data=wine_red_sub, aes(y=wine_red_sub$density, x=quality))+
+  geom_point(alpha=0.1)
+```
+
+```{r}
+ggplot(data=wine_red_sub, aes(y=wine_red_sub$sulphates, x=quality))+
+  geom_point(alpha=0.1)
+```
+
+```{r}
+ggplot(data=wine_red_sub, aes(y=wine_red_sub$alcohol, x=quality))+
+  geom_point(alpha=0.1)
+```
+
+# 双变量分析
+## 探讨你在这部分探究中观察到的一些关系。这些感兴趣的特性与数据集内其他特性有什么区别？
+
+## 你是否观察到主要特性与其他特性之间的有趣关系？
+
+## 你发现最强的关系是什么？
+
+
+# 多变量绘图
+# 多变量分析
+## 探讨你在这部分探究中观察到的一些关系。通过观察感兴趣的特性，是否存在相互促进的特性？
+## 这些特性之间是否存在有趣或惊人的联系呢？
+## 选项：你是否创建过数据集的任何模型？讨论你模型的优缺点。
+
+# 定稿图与总结
+## 绘图1
+## 描述1
+## 绘图2
+## 描述2
+## 绘图3
+## 描述3
+
+# 反思

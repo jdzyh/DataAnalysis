@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta charset="utf-8">
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    
+    <style>
+        circle {
+            opacity: 0.4;
+            stroke: none;
+        }
+        h2 {
+            text-align: center;
+        }
+        div.type_buttons div {
+            background-color: rgb(251, 201, 127);
+            padding: 3px;
+            margin: 7px;
+        }
+        div.tips {
+            position: absolute;			
+            text-align: center;			
+            width: 60px;					
+            height: 20px;					
+            padding: 2px;				
+            font: 12px sans-serif;		
+            background: lightsteelblue;	
+            border: 0px;		
+            border-radius: 8px;			
+            pointer-events: none;			
+        }
+    </style>
+
+    <script type="text/javascript">
+
+        function draw(data) {
+            d3.select("body")
+                .append("h2")
+                .text("各'全垒得分'分段下，不同惯用手球员的占比图");
+            //-------------------------------
+            // Set Basic vars.
+            //-------------------------------
+            var margin = 75,
+            width = 1400 - margin,
+            height = 600 - margin,
+            rect_height = 40;
+
+            
+            var hr_extent = d3.extent(data, function(d) {return d["hr_level"];});
+            var hr_scale = d3.scale.linear().domain(hr_extent).range([height - rect_height, margin]);
+            
+            var color = d3.scale.ordinal()
+                .domain(["L","B","R"])
+                .range(["#2D72A7", "#58CFFF", "#99D9EF"]);
+            
+            // Basic svg.
+            var svg = d3.select("body")
+                .append("svg")
+                .attr("width", width + margin)
+                .attr("height", height + margin)
+                .append("g")
+                .attr("class","chart");
+                
+            // Tips 
+            var tips = d3.select("body")
+                .append("div")	
+                .attr("class", "tips")				
+                .style("opacity", 0);
+
+            //-------------------------------
+            // Group data by HR levels.
+            //-------------------------------
+            function f_rollup_sum(leaves){
+                var number = d3.sum(leaves, function(d){
+                    return 1;
+                });
+                return number;
+            }
+            
+            // Draw number version.
+            update_svg("L");
+            draw_legend();
+            // Draw buttons.
+            var buttons = d3.select("body")
+                .append("div")
+                .attr("class", "type_buttons")
+                .selectAll("div")
+                .data(["L", "B", "R"])
+                .enter()
+                .append("div")
+                .text(function(d) {
+                    if(d=="L") {
+                        return "惯用左手";
+                    }else if(d=="B"){
+                        return "惯用双手";
+                    }else if(d=="R"){
+                        return "惯用右手";
+                    }
+                });
+            buttons.on("click", function(d) {
+                    d3.select(".type_buttons")
+                      .selectAll("div")
+                      .transition()
+                      .duration(500)
+                      .style("color", "black")
+                      .style("background", "rgb(251, 201, 127)");
+
+                    d3.select(this)
+                      .transition()
+                      .duration(500)
+                      .style("background", "lightBlue")
+                      .style("color", "white");
+                    //
+                    update_svg(d);
+            });    
+            //-------------------------------
+            // Draw basic SVG elements.
+            //-------------------------------
+            function update_svg(type="L"){
+                var filtered = data.filter(function(d) {
+                    return d['handedness']==type;
+                });
+                var nested_by_hr = d3.nest()
+                    .key(function(d) { // group by hr_level
+                        return d["hr_level"];
+                    })
+                    .rollup(f_rollup_sum) // process each leaf in one group.
+                    .entries(filtered);
+                            
+                // Clean all rects and axis labels.
+                d3.select(".chart").selectAll(".g").remove();
+                d3.select("svg").selectAll(".axis").remove();
+                
+                // Add X Axis.
+                var number_scale = d3.scale.sqrt().domain([0, 700]).range([margin, width]);
+                var x_axis_scale = d3.svg.axis()
+                    .scale(number_scale)
+                    .ticks(10);
+                    
+                var x_axis = d3.select("svg")
+                    .append("g")
+                    .attr("class", "x axis")
+                    .attr("transform", "translate(0," + height + ")")
+                    
+                x_axis.call(x_axis_scale)
+                    .append("text")
+                    .text("人数(对数)")
+                    .attr("transform", "translate(" + width/2 + "," + 40 +")");
+                // Add Y Axis.
+                var y_labels = d3.scale.linear().domain([0,600]).range([height, margin-rect_height]);
+                var y_axis_scale = d3.svg.axis().scale(y_labels).orient("left").ticks(6);  
+                
+                var y_axis = d3.select("svg")
+                    .append("g")
+                    .attr("class", "y axis")
+                    .attr("transform", "translate(" + margin + ",0)")
+                    
+                y_axis.call(y_axis_scale)
+                    .append("text")
+                    .text("全垒得分")
+                    .attr("transform", "translate(-50,"+height/2+") rotate(270)");
+                    
+                // Add bar position.
+                var bar_pos = svg.selectAll(".status")
+                    .data(nested_by_hr)  
+                    .enter()
+                    .append("g")
+                    .attr("class", "g")
+                    .attr("transform", function(d) { return "translate(0," + (hr_scale(d["key"])-20).toString() + ")"; });
+                
+                var bars_placeholder = bar_pos.append("rect")
+                 
+                // Draw number of hr_level's people of different handedness.
+                bars_placeholder.attr("width", function(d){ return number_scale(d["values"])-number_scale(0);})
+                    .attr("x", number_scale(0))  
+                    .attr("height", rect_height)
+                    .style("fill", color(type))
+                    .on("mouseover", function(d) {		
+                        tips.transition()		
+                            .duration(200)		
+                            .style("opacity", .9);		
+                        tips.html(d["values"] + "人")	
+                            .style("left", (d3.event.pageX) + "px")		
+                            .style("top", (d3.event.pageY - 28) + "px");	
+                        })					
+                    .on("mouseout", function(d) {		
+                        tips.transition()		
+                            .duration(500)		
+                            .style("opacity", 0);	
+                    });
+
+
+            }            
+  
+            //-------------------------------
+            // Legend 
+            //-------------------------------
+            function draw_legend(){
+                var legend_y = 350;
+                
+                var legend = d3.select("svg")
+                    .append("g")
+                    .attr("class", "legend")
+
+                
+                var background = legend.append("rect")
+                    .attr("y", legend_y)
+                    .attr("x", width - 300)
+                    .attr("width", 200)
+                    .attr("height", 100)
+                    .style("fill", "white"); 
+                    
+                var describe = legend.selectAll("g")
+                    .attr("class", "describe")
+                    .data(["惯用左手", "惯用双手", "惯用右手"])
+                    .enter()
+                    .append("g")
+                    .attr("transform", function(d, i) { return "translate(0," + (legend_y+i*35).toString() + ")"; });
+                
+                var desc_x = width - 180,
+                desc_y = 10;
+                
+                describe.append("text")  
+                    .attr("x", desc_x)  
+                    .attr("y", desc_y)
+                    .attr("dy", "0.50em")  
+                    .style("text-anchor", "end")  //右对齐
+                    .text(function(d) { return d; }); 
+                    
+                describe.append("rect")  
+                    .attr("x", desc_x + 20)
+                    .attr("y", 5)
+                    .attr("width", 20)
+                    .attr("height", 20)
+                    .style("fill", color);
+            }
+             
+        };
+    </script>
+    </head>
+    <body>
+        <script type="text/javascript">
+            var id=0;
+            d3.csv("baseball_data.csv", function(d) {
+                d["id"] = id++;
+                d["weight"] = +d["weight"];
+                d["height"] = +d["height"];
+                d["hr_level"] = parseInt(+d["HR"]/100) +1 //分成1-6, 6个等级
+                d["avg"] = +d["avg"] + 0.001;
+                return d;
+            }, draw);
+        </script>
+    </body>
+</html>

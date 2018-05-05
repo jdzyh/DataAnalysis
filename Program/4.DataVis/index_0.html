@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta charset="utf-8">
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    
+    <style>
+        circle {
+            opacity: 0.4;
+            stroke: none;
+        }
+    </style>
+
+    <script type="text/javascript">
+        format = d3.time.format("%d-%m-%Y (%H:%M h)");
+
+        function draw(data) {
+
+            //-------------------------------
+            // Set Basic vars.
+            //-------------------------------
+            var margin = 75,
+            width = 1400 - margin,
+            height = 600 - margin;
+
+            // Fields from data.
+            var height_extent = d3.extent(data, function(d){return d["height"];});
+            var height_scale = d3.scale.linear().domain(height_extent);
+                
+            var weight_extent = d3.extent(data, function(d){return d["weight"];}); 
+            var weight_scale = d3.scale.linear().domain(weight_extent);
+            
+            var avg_extent = d3.extent(data, function(d){return d["avg"];}); 
+            var avg_scale = d3.scale.linear().domain(avg_extent);
+            
+            var hr_extent = d3.extent(data, function(d) {return d['HR'];});
+            var hr_scale = d3.scale.linear().domain(hr_extent);
+            //-------------------------------
+            // SVG Paint.
+            //-------------------------------
+            var svg = d3.select("body")
+                        .append("svg")
+                        .attr("width", width + margin)
+                        .attr("height", height + margin)
+                        .append('g')
+                        .attr('class','chart');
+            // Add Circles.
+            d3.select('svg')
+                .selectAll("circle")
+                .data(data)
+                .enter()
+                .append("circle");
+            
+
+            // Add X Axis.
+            avg_scale.range([margin, width]);
+            var x_axis = d3.svg.axis().scale(avg_scale);
+                
+            d3.select("svg")
+                .append('g')
+                .attr('class', 'x axis')
+                .attr('transform', "translate(0," + height + ")")
+                .call(x_axis);
+            
+            // Add Y Axis.
+            hr_scale.range([height, margin]);
+            var y_axis = d3.svg.axis().scale(hr_scale)
+                .orient("left");  
+            
+            d3.select("svg")
+              .append('g')
+              .attr('class', 'y axis')
+              .attr('transform', "translate(" + margin + ",0)")
+              .call(y_axis);
+            
+            //-------------------------------
+            // Set Radius Of Circles.
+            //-------------------------------
+            
+            d3.selectAll("circle")
+                .attr('cx', function(d) {
+                    //return height_scale(d['height']);
+                    return avg_scale(d['avg']);
+                })
+                .attr('cy', function(d) {
+                    //return weight_scale(d['weight']);
+                    return hr_scale(d['HR']);
+                })
+                .attr('r', function(d) {
+                    //return Math.sqrt(hr_scale(d['HR']));
+                    return 6;
+                })
+                .attr('fill', function(d) {
+                    handedness = d['handedness'];
+                    if(handedness=='R'){
+                        return 'green';
+                    }else if(handedness=='L'){
+                        return 'blue';
+                    }else if(handedness=='B'){
+                        return 'red';
+                    }else{
+                        return 'black';
+                    }
+                        
+                });
+        };
+    </script>
+    </head>
+    <body>
+        <script type="text/javascript">
+            var id=0;
+            d3.csv("baseball_data.csv", function(d) {
+                d['id'] = id++;
+                d['weight'] = +d['weight'];
+                d['height'] = +d['height'];
+                d['HR'] = +d['HR'] + 1;
+                d['avg'] = +d['avg'] + 0.001;
+                return d;
+            }, draw);
+        </script>
+    </body>
+</html>
